@@ -40,16 +40,14 @@ publishing {
                 username "admin"
                 password "123456"
             }
-            url = 'http://124.70.186.54:8081/repository/local/'
+            url = 'http://localhost:18081/repository/maven-releases/'
             allowInsecureProtocol = true
         }
     }
 }
 
 dependencies {
-//    implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-//    implementation 'org.aspectj:aspectjweaver:1.9.7'
 }
 
 tasks.named('test') {

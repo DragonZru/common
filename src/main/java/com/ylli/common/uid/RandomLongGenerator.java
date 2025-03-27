@@ -1,4 +1,4 @@
-package com.ylli.common.common.uid;
+package com.ylli.common.uid;
 
 import java.util.random.RandomGenerator;
 

@@ -1,4 +1,4 @@
-package com.ylli.common.common.exception;
+package com.ylli.common.exception;
 
 import org.springframework.http.HttpStatus;
 
