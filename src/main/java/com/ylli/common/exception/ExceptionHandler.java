@@ -19,17 +19,19 @@ public class ExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
-    @Value("${exceptionHandler.logger.enable:false}")
-    boolean loggerEnable;
+    @Value("${exceptionHandler.print.enable:true}")
+    boolean printEnable;
 
     @org.springframework.web.bind.annotation.ExceptionHandler(GenericException.class)
     public ResponseEntity<?> exceptionHandler(GenericException ex) {
-        return ResponseEntity.status(ex.getCode()).body(new ResponseBody(ex.getCode(), ex.getMessage(), loggerEnable ? printStackTrace(ex) : null));
+        return ResponseEntity.status(ex.getCode()).body(new ResponseBody(ex.getCode(), ex.getMessage(), printEnable ? printStackTrace(ex) : null));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<?> exceptionHandler(Exception ex) {
-        if (loggerEnable) logger.error(printStackTrace(ex));
+        if (printEnable) {
+            logger.error(printStackTrace(ex));
+        }
         HttpStatusCode statusCode = getStatusCode(ex);
         return ResponseEntity
                 .status(statusCode)
