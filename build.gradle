@@ -38,9 +38,9 @@ publishing {
         maven {
             credentials {
                 username "admin"
-                password "123456"
+                password "Guyuefangyuan6"
             }
-            url = 'http://localhost:18081/repository/maven-releases/'
+            url = 'http://124.70.186.54:8081/repository/maven-releases/'
             allowInsecureProtocol = true
         }
     }
