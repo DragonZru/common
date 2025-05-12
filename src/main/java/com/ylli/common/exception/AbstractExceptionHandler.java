@@ -7,57 +7,44 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponseException;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-@RestControllerAdvice
-public class ExceptionHandler {
+/**
+ * @author ylli
+ */
+//@RestControllerAdvice
+public abstract class AbstractExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractExceptionHandler.class);
 
     @Value("${exceptionHandler.print.enable:true}")
     boolean printEnable;
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(GenericException.class)
+    @ExceptionHandler(GenericException.class)
     public ResponseEntity<?> exceptionHandler(GenericException ex) {
         return ResponseEntity.status(ex.getCode()).body(new ResponseBody(ex.getCode(), ex.getMessage(), printEnable ? printStackTrace(ex) : null));
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler
+    @ExceptionHandler
     public ResponseEntity<?> exceptionHandler(Exception ex) {
         if (printEnable) {
             logger.error(printStackTrace(ex));
         }
-        HttpStatusCode statusCode = getStatusCode(ex);
+        HttpStatusCode statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = ex.getMessage();
+        if (ex instanceof ErrorResponse) {
+            statusCode = ((ErrorResponse) ex).getStatusCode();
+            message = ((ErrorResponse) ex).getBody().getDetail();
+        }
+
         return ResponseEntity
                 .status(statusCode)
-                .body(new ResponseBody(statusCode.value(), ex.getMessage(), null));
-    }
-
-    @org.springframework.web.bind.annotation.ExceptionHandler
-    public ResponseEntity<?> exceptionHandler(ErrorResponseException ex) {
-        HttpStatusCode statusCode = ex.getStatusCode();
-        return ResponseEntity
-                .status(statusCode)
-                .body(new ResponseBody(statusCode.value(), ex.getMessage(), null));
-    }
-
-    /**
-     * 通用异常 return 500.有特殊需要自己添加
-     * 业务异常统一使用GenericException，这里主要针对接入的各种插件
-     */
-    public HttpStatusCode getStatusCode(Exception ex) {
-        if (ex instanceof IllegalArgumentException) {
-            return HttpStatus.BAD_REQUEST;
-        }
-        if (ex instanceof NullPointerException) {
-            return HttpStatus.NOT_FOUND;
-        }
-        return HttpStatus.INTERNAL_SERVER_ERROR;
+                .body(new ResponseBody(statusCode.value(), message, printEnable ? printStackTrace(ex) : null));
     }
 
     private String printStackTrace(Exception ex) {
